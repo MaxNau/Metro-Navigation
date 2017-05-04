@@ -1,0 +1,15 @@
+﻿<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:controls="clr-namespace:MetroNavigation.Controls"
+        xmlns:ViewModels="clr-namespace:MetroNavigation.ViewModels" x:Class="MetroNavigation.MainWindow"
+        Title="MainWindow" WindowState="Maximized" Width="1366" Height="768">
+    <Window.DataContext>
+        <ViewModels:MetroNavigationVM/>
+    </Window.DataContext>
+    <Grid Margin="50">
+        <controls:MetroNavigationMap x:Name="MetroNavigationMap" Loaded="MetroNavigationMap_Loaded"/>
+    </Grid>
+</Window>

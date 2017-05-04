@@ -1,0 +1,22 @@
+﻿<UserControl x:Class="MetroNavigation.Controls.MetroNavigationMap"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:MetroNavigation.Controls">
+    <Grid>
+        <!--<Slider x:Name="zoomSlider" Minimum="0.5" Maximum="0.8" Value="0.6"/>-->
+            <Canvas x:Name="MetroNavMapCanvas">
+                <!-- <Canvas.LayoutTransform>
+                <ScaleTransform ScaleX="{Binding Path=Value, ElementName=zoomSlider}"
+                            ScaleY="{Binding Path=Value, ElementName=zoomSlider}"/>
+
+            </Canvas.LayoutTransform>-->
+                <!--"<Ellipse Canvas.Bottom="605.5" Canvas.Left="755" Width="25" Height="25" Fill="Black"></Ellipse>
+                <Ellipse Canvas.Bottom="580" Canvas.Left="692" Width="25" Height="25" Fill="Black"></Ellipse>
+                <Ellipse Canvas.Bottom="541" Canvas.Left="608" Width="25" Height="25" Fill="Black"></Ellipse>
+                <Line X2="704" X1="767.5" Y2="14" Y1="-18" Stroke="Black" StrokeThickness="1"/>
+                <Line X2="704" X1="620" Y2="45" Y1="84" Stroke="Red" StrokeThickness="1"/>-->
+            </Canvas>
+        </Grid>
+</UserControl>
