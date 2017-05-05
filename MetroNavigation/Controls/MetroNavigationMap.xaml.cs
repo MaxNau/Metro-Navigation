@@ -1,4 +1,5 @@
 ﻿using System.Windows.Controls;
+using MetroNavigation.ViewModels;
 
 namespace MetroNavigation.Controls
 {

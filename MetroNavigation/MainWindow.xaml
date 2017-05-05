@@ -9,7 +9,7 @@
     <Window.DataContext>
         <ViewModels:MetroNavigationVM/>
     </Window.DataContext>
-    <Grid Margin="50">
-        <controls:MetroNavigationMap x:Name="MetroNavigationMap" Loaded="MetroNavigationMap_Loaded"/>
+    <Grid>
+        <controls:MetroNavigationMap></controls:MetroNavigationMap>
     </Grid>
 </Window>

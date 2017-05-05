@@ -4,10 +4,44 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:MetroNavigation.Controls">
+    
+    <UserControl.Resources>
+        <Style TargetType="local:StationControl">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Path=Line}" Value="1">
+                    <Setter Property="StationColor" Value="Red"></Setter>    
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=Line}" Value="2">
+                    <Setter Property="StationColor" Value="Green"></Setter>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=Line}" Value="3">
+                    <Setter Property="StationColor" Value="Blue"></Setter>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
     <Grid>
         <!--<Slider x:Name="zoomSlider" Minimum="0.5" Maximum="0.8" Value="0.6"/>-->
-            <Canvas x:Name="MetroNavMapCanvas">
-                <!-- <Canvas.LayoutTransform>
+        <ItemsControl x:Name="map" ItemsSource="{Binding Stations}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Canvas>
+                    </Canvas>
+                    </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemContainerStyle>
+                <Style TargetType="ContentPresenter">
+                    <Setter Property="Canvas.Left" Value="{Binding X}"/>
+                    <Setter Property="Canvas.Bottom" Value="{Binding Y}"/>
+                </Style>
+            </ItemsControl.ItemContainerStyle>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <local:StationControl></local:StationControl>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <!-- <Canvas.LayoutTransform>
                 <ScaleTransform ScaleX="{Binding Path=Value, ElementName=zoomSlider}"
                             ScaleY="{Binding Path=Value, ElementName=zoomSlider}"/>
 
@@ -17,6 +51,6 @@
                 <Ellipse Canvas.Bottom="541" Canvas.Left="608" Width="25" Height="25" Fill="Black"></Ellipse>
                 <Line X2="704" X1="767.5" Y2="14" Y1="-18" Stroke="Black" StrokeThickness="1"/>
                 <Line X2="704" X1="620" Y2="45" Y1="84" Stroke="Red" StrokeThickness="1"/>-->
-            </Canvas>
+            
         </Grid>
 </UserControl>
