@@ -45,6 +45,9 @@
                                  Value="True">
                             <Setter Property="Fill" Value="Black"/>
                         </DataTrigger>
+                        <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                            <Setter Property="Fill" Value="Gold"/>
+                        </DataTrigger>
                     </Style.Triggers>
                 </Style>
             </Ellipse.Style>

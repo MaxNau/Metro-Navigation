@@ -7,6 +7,11 @@ namespace MetroNavigation.ViewModels
     {
         private double canvasLeft;
         private double canvasBottom;
+        private bool isSielected;
+
+        public string Name { get; set; }
+        public int Line { get; set; }
+        public string ConnectedStation { get; set; }
 
         public double CanvasLeft
         {
@@ -28,9 +33,16 @@ namespace MetroNavigation.ViewModels
             }
         }
 
-        public string Name { get; set; }
-        public int Line { get; set; }
-        public string ConnectedStation { get; set; }
+
+        public bool IsSelected
+        {
+            get { return isSielected; }
+            set
+            {
+                isSielected = value;
+                OnPropertyChanged("IsSelected");
+            }
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
         public void OnPropertyChanged([CallerMemberName]string prop = "")

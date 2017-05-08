@@ -3,9 +3,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:interactivity="http://schemas.microsoft.com/expression/2010/interactivity"
              xmlns:local="clr-namespace:MetroNavigation.Controls"
              xmlns:vm="clr-namespace:MetroNavigation.ViewModels">
-    
     <UserControl.Resources>
         <Style TargetType="local:StationControl">
             <Style.Triggers>
@@ -28,7 +28,13 @@
                 <CollectionViewSource x:Key="Stations" Source="{Binding Stations}"/>
                 <CollectionViewSource x:Key="StationConnections" Source="{Binding StationConnections}"/>
                 <DataTemplate DataType="{x:Type vm:StationViewModel}">
-                    <local:StationControl></local:StationControl>
+                    <local:StationControl>
+                        <interactivity:Interaction.Triggers>
+                            <interactivity:EventTrigger EventName="MouseLeftButtonDown">
+                                <interactivity:InvokeCommandAction Command="{Binding RelativeSource={RelativeSource AncestorType=ItemsControl}, Path=DataContext.SelectStationCommand}" CommandParameter="{Binding}" />
+                            </interactivity:EventTrigger>
+                        </interactivity:Interaction.Triggers>
+                    </local:StationControl>
                 </DataTemplate>
                 <DataTemplate DataType="{x:Type vm:StationConnectionViewModel}">
                     <Line StrokeThickness="{Binding ConnectionHeight}" Stroke="{Binding LineColor}" X1="{Binding X1}"
@@ -60,11 +66,5 @@
                             ScaleY="{Binding Path=Value, ElementName=zoomSlider}"/>
 
             </Canvas.LayoutTransform>-->
-                <!--"<Ellipse Canvas.Bottom="605.5" Canvas.Left="755" Width="25" Height="25" Fill="Black"></Ellipse>
-                <Ellipse Canvas.Bottom="580" Canvas.Left="692" Width="25" Height="25" Fill="Black"></Ellipse>
-                <Ellipse Canvas.Bottom="541" Canvas.Left="608" Width="25" Height="25" Fill="Black"></Ellipse>
-                <Line X2="704" X1="767.5" Y2="14" Y1="-18" Stroke="Black" StrokeThickness="1"/>
-                <Line X2="704" X1="620" Y2="45" Y1="84" Stroke="Red" StrokeThickness="1"/>-->
-            
         </Grid>
 </UserControl>

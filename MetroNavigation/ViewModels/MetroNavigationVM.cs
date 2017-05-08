@@ -1,10 +1,13 @@
-﻿using MetroNavigation.Controls;
+﻿using MetroNavigation.Commands;
+using MetroNavigation.Controls;
 using MetroNavigation.Models;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
+using System;
 
 namespace MetroNavigation.ViewModels
 {
@@ -18,7 +21,11 @@ namespace MetroNavigation.ViewModels
         public ObservableCollection<StationViewModel> Stations { get; set; }
         public ObservableCollection<StationConnectionViewModel> StationConnections { get; set; }
 
-        public List<Station> Statins { get; set; }
+        public StationViewModel StationPathFrom { get; set; }
+        public StationViewModel StationPathTo { get; set; }
+
+        public ICommand SelectStationCommand { get; set; }
+
         public MetroNavigationVM()
         {
             Load();
@@ -29,6 +36,8 @@ namespace MetroNavigation.ViewModels
             Stations = new ObservableCollection<StationViewModel>();
             StationConnections = new ObservableCollection<StationConnectionViewModel>();
 
+            SelectStationCommand = new RelayCommand(SelectStation);
+
             List<Station> stationsData;
             double canvasLeft;
             double canvasBottom;
@@ -38,8 +47,6 @@ namespace MetroNavigation.ViewModels
             {
                 stationsData = context.Stations.ToList();
             }
-
-            Statins = stationsData;
 
             MinX = stationsData.Min(s => s.OsX);
             MaxX = stationsData.Max(s => s.OsX);
@@ -90,6 +97,51 @@ namespace MetroNavigation.ViewModels
                         StationConnections.Add(new StationConnectionViewModel() { X1 = station.CanvasLeft + sc.MaxHeight / 2, X2 = connected.CanvasLeft + sc.MaxHeight / 2, Y1 = SystemParameters.WorkArea.Height - station.CanvasBottom , Y2 = SystemParameters.WorkArea.Height - connected.CanvasBottom , CanvasBottom = connected.CanvasBottom + (sc.MaxHeight / 2) - 2, LineColor = lineColor });
                     else if (station.CanvasBottom < connected.CanvasBottom & station.CanvasLeft < connected.CanvasLeft | station.CanvasBottom < connected.CanvasBottom & station.CanvasLeft > connected.CanvasLeft)
                         StationConnections.Add(new StationConnectionViewModel() { X1 = station.CanvasLeft + sc.MaxHeight / 2, X2 = connected.CanvasLeft + sc.MaxHeight / 2, Y1 = SystemParameters.WorkArea.Height - connected.CanvasBottom  + (station.CanvasBottom - connected.CanvasBottom), Y2 = (SystemParameters.WorkArea.Height - connected.CanvasBottom ) + (station.CanvasBottom - connected.CanvasBottom)*2, CanvasBottom = station.CanvasBottom + (sc.MaxHeight / 2) - 2, LineColor = lineColor });
+                }
+            }
+        }
+
+        private void SelectStation(object selectedStation)
+        {
+            if (StationPathFrom == null)
+            {
+                StationPathFrom = (StationViewModel)selectedStation;
+                StationPathFrom.IsSelected = true;
+            }
+            else
+            {
+                if (ReferenceEquals(StationPathFrom, selectedStation))
+                {
+                    StationPathFrom.IsSelected = false;
+                    StationPathFrom = null;
+                    if (StationPathTo != null)
+                    {
+                        StationPathTo.IsSelected = false;
+                        StationPathTo = null;
+                    }
+                }
+                else
+                {
+                    if (ReferenceEquals(StationPathTo, selectedStation))
+                    {
+                        StationPathTo.IsSelected = false;
+                        StationPathTo = null;
+                    }
+                    else
+                    {
+                        if (StationPathTo != null)
+                        {
+                            if (!ReferenceEquals(StationPathTo, selectedStation))
+                            {
+
+                            }
+                        }
+                        else
+                        {
+                            StationPathTo = (StationViewModel)selectedStation;
+                            StationPathTo.IsSelected = true;
+                        }
+                    }
                 }
             }
         }
