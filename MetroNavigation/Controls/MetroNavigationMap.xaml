@@ -3,7 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:MetroNavigation.Controls">
+             xmlns:local="clr-namespace:MetroNavigation.Controls"
+             xmlns:vm="clr-namespace:MetroNavigation.ViewModels">
     
     <UserControl.Resources>
         <Style TargetType="local:StationControl">
@@ -22,7 +23,24 @@
     </UserControl.Resources>
     <Grid>
         <!--<Slider x:Name="zoomSlider" Minimum="0.5" Maximum="0.8" Value="0.6"/>-->
-        <ItemsControl x:Name="map" ItemsSource="{Binding Stations}">
+        <ItemsControl x:Name="map" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" >
+            <ItemsControl.Resources>
+                <CollectionViewSource x:Key="Stations" Source="{Binding Stations}"/>
+                <CollectionViewSource x:Key="StationConnections" Source="{Binding StationConnections}"/>
+                <DataTemplate DataType="{x:Type vm:StationViewModel}">
+                    <local:StationControl></local:StationControl>
+                </DataTemplate>
+                <DataTemplate DataType="{x:Type vm:StationConnectionViewModel}">
+                    <Line StrokeThickness="{Binding ConnectionHeight}" Stroke="{Binding LineColor}" X1="{Binding X1}"
+                          Y1="{Binding Y1}" X2="{Binding X2}" Y2="{Binding Y2}"></Line>
+                </DataTemplate>
+            </ItemsControl.Resources>
+            <ItemsControl.ItemsSource>
+                <CompositeCollection>
+                    <CollectionContainer Collection="{Binding Source={StaticResource Stations}}"/>
+                    <CollectionContainer Collection="{Binding Source={StaticResource StationConnections}}"/>
+                </CompositeCollection>
+            </ItemsControl.ItemsSource>
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <Canvas>
@@ -31,15 +49,11 @@
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemContainerStyle>
                 <Style TargetType="ContentPresenter">
-                    <Setter Property="Canvas.Left" Value="{Binding X}"/>
-                    <Setter Property="Canvas.Bottom" Value="{Binding Y}"/>
+                    <Setter Property="Canvas.Left" Value="{Binding CanvasLeft}"/>
+                    <Setter Property="Canvas.Bottom" Value="{Binding CanvasBottom}"/>
+                    <Setter Property="Canvas.ZIndex" Value="{Binding ZIndex}"></Setter>
                 </Style>
             </ItemsControl.ItemContainerStyle>
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <local:StationControl></local:StationControl>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
         </ItemsControl>
         <!-- <Canvas.LayoutTransform>
                 <ScaleTransform ScaleX="{Binding Path=Value, ElementName=zoomSlider}"

@@ -84,6 +84,8 @@
     <Compile Include="Models\Station.cs" />
     <Compile Include="Models\StationEntity.cs" />
     <Compile Include="ViewModels\MetroNavigationVM.cs" />
+    <Compile Include="ViewModels\StationConnectionViewModel.cs" />
+    <Compile Include="ViewModels\StationViewModel.cs" />
     <Page Include="Controls\MetroNavigationMap.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

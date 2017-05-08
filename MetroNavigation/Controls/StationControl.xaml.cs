@@ -9,10 +9,6 @@ namespace MetroNavigation.Controls
     /// </summary>
     public partial class StationControl : UserControl
     {
-        public double? X { get; set; }
-        public double? Y { get; set; }
-        public string Name { get; set; }
-
         public StationControl()
         {
             InitializeComponent();

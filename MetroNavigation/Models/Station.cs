@@ -14,10 +14,13 @@ namespace MetroNavigation.Models
         [StringLength(50)]
         public string Name { get; set; }
 
-        public int? OsX { get; set; }
+        public int OsX { get; set; }
 
-        public int? OsY { get; set; }
+        public int OsY { get; set; }
 
-        public int? Line { get; set; }
+        public int Line { get; set; }
+
+        [StringLength(50)]
+        public string ConnectedStation { get; set; }
     }
 }
