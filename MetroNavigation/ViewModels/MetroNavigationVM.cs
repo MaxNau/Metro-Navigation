@@ -168,20 +168,54 @@ namespace MetroNavigation.ViewModels
                 var temp = Stations.ToList();
 
                 List<StationViewModel> selectedPath = new List<StationViewModel>();
-                selectedPath.Add(StationPathFrom);
-                selectedPath.Add(StationPathTo);
+                //selectedPath.Add(StationPathFrom);
+                //selectedPath.Add(StationPathTo);
 
                 var tempCon = StationPathFrom;
-               // bool found = false;
+                // bool found = false;
 
-                while (tempCon.ConnectedStationO.NextStation != StationPathTo.Name)
+                try
                 {
-                    tempCon = Stations.ToList().Find(s => s.Name.Trim() == tempCon.ConnectedStationO.NextStation.Trim());
-                    StationConnections.FirstOrDefault(s => s.NextStation.Trim() == tempCon.ConnectedStationO.NextStation.Trim()).IsSelectedConnection = true;
-                    tempCon.ConnectedStationO.IsSelectedConnection = true;
-                    tempCon.IsSelectedStationInThePath = true;
-                    selectedPath.Add(tempCon);
+                    while (tempCon.ConnectedStationO.NextStation != StationPathTo.Name)
+                    {
+                        tempCon = Stations.ToList().Find(s => s.Name.Trim() == tempCon.ConnectedStationO.NextStation.Trim());
+                        StationConnections.SingleOrDefault(s =>
+                        {
+                            if (s.NextStation != null & s.NextStation.Trim() == tempCon.ConnectedStationO.NextStation.Trim())
+                            {
+                                s.IsSelectedConnection = true;
+                                return true;
+                            }
+                            return false;
+                        });
+                        //tempCon.ConnectedStationO.IsSelectedConnection = true;
+                        tempCon.IsSelectedStationInThePath = true;
+                       // selectedPath.Add(tempCon);
+                    }
                 }
+                catch (NullReferenceException ex)
+                {
+                    ResetSelectedStationsAndStationConnections();
+                    HideStationsAndConnectionsThatIsNotOnTheSelectedPath();
+                    tempCon = StationPathFrom;
+                    while (tempCon.ConnectedStationO.PreviousStation != StationPathTo.Name)
+                    {
+                        tempCon = Stations.ToList().Find(s => s.Name.Trim() == tempCon.ConnectedStationO.PreviousStation.Trim());
+                        StationConnections.SingleOrDefault(s =>
+                        {
+                            if (s.NextStation != null & s.NextStation.Trim() == tempCon.ConnectedStationO.NextStation.Trim())
+                            {
+                                s.IsSelectedConnection = true;
+                                return true;
+                            }
+                            return false;
+                        });
+                        //tempCon.ConnectedStationO.IsSelectedConnection = true;
+                        tempCon.IsSelectedStationInThePath = true;
+                        //selectedPath.Add(tempCon);
+                    }
+                }
+                
 
                 /*for (int index = 0; index < Stations.Count; index++)
                 {

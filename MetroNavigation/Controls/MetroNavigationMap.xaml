@@ -18,9 +18,6 @@
                 <DataTrigger Binding="{Binding Path=Line}" Value="3">
                     <Setter Property="StationColor" Value="Blue"/>
                 </DataTrigger>
-                <DataTrigger Binding="{Binding Path=IsSelectedStationInThePath}" Value="False">
-                    <Setter Property="Opacity" Value="0.25"/>
-                </DataTrigger>
             </Style.Triggers>
         </Style>
     </UserControl.Resources>

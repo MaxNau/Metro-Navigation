@@ -5,6 +5,15 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:MetroNavigation.Controls"
              MaxHeight="25" MaxWidth="25" >
+    <UserControl.Resources>
+        <Style TargetType="{x:Type Ellipse}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Path=IsSelectedStationInThePath}" Value="False">
+                    <Setter Property="Opacity" Value="0.25"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
     <UserControl.ToolTip>
         <Grid Margin="0" Width="150">
             <Grid.RowDefinitions>
