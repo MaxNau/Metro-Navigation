@@ -124,28 +124,20 @@ namespace MetroNavigation.ViewModels
             {
                 if (ReferenceEquals(StationPathFrom, selectedStation))
                 {
-                    StationPathFrom.IsSelected = false;
-                    StationPathFrom = null;
-                    Stations.Where(s => s.IsSelectedStationInThePath == false | true)
-                            .ToList().ForEach(s => { s.IsSelectedStationInThePath = null; });
-                    StationConnections.Where(sc => sc.IsSelectedConnection == false | true)
-                            .ToList().ForEach(sc => { sc.IsSelectedConnection = null; });
+                    RemoveStationFromSelection();
+                    ResetSelectedStationsAndStationConnections();
+
                     if (StationPathTo != null)
                     {
-                        StationPathTo.IsSelected = false;
-                        StationPathTo = null;
+                        RemoveStationToSelection();
                     }
                 }
                 else
                 {
                     if (ReferenceEquals(StationPathTo, selectedStation))
                     {
-                        StationPathTo.IsSelected = false;
-                        StationPathTo = null;
-                        Stations.Where(s => s.IsSelectedStationInThePath == false | true)
-                            .ToList().ForEach(s => { s.IsSelectedStationInThePath = null; });
-                        StationConnections.Where(sc => sc.IsSelectedConnection == false | true)
-                            .ToList().ForEach(sc => { sc.IsSelectedConnection = null; });
+                        RemoveStationToSelection();
+                        ResetSelectedStationsAndStationConnections();
                     }
                     else
                     {
@@ -170,42 +162,107 @@ namespace MetroNavigation.ViewModels
                 FindPath = false;
             if (FindPath == true)
             {
-                StationConnections.Where(sc => sc.IsSelectedConnection == null)
-                            .ToList().ForEach(sc => { sc.IsSelectedConnection = false; });
-                Stations.Where(s => s.IsSelectedStationInThePath == null)
-                            .ToList().ForEach(s => { s.IsSelectedStationInThePath = false; });
-
+                HideStationsAndConnectionsThatIsNotOnTheSelectedPath();
                 StationPathFrom.IsSelectedStationInThePath = true;
                 StationPathTo.IsSelectedStationInThePath = true;
-                var temp = Stations.OrderBy(s => s.Line).ToList();
+                var temp = Stations.ToList();
 
                 List<StationViewModel> selectedPath = new List<StationViewModel>();
                 selectedPath.Add(StationPathFrom);
+                selectedPath.Add(StationPathTo);
 
-                for (int index = 0; index < Stations.Count; index++)
+                var tempCon = StationPathFrom;
+               // bool found = false;
+
+                while (tempCon.ConnectedStationO.NextStation != StationPathTo.Name)
                 {
-                    StationViewModel connected = temp.Find(s => s.Name.Trim() == Stations[index].ConnectedStationO.NextStation.Trim());
-                    if (connected != null)
-                    {
-                        if (connected.Name == StationPathTo.Name)
-                        {
-                            selectedPath.Add(StationPathTo);
-                            foreach (StationViewModel sc in selectedPath)
-                            {
-                                if (sc.Name != StationPathTo.Name)
-                                {
-                                    var res = StationConnections.ToList().Find(s => s.NextStation.Trim() == sc.ConnectedStationO.NextStation.Trim());
-                                    res.IsSelectedConnection = true;
-                                }
-                            }
-                            return;
-                        }
-                        Stations.FirstOrDefault(s => s.Name == connected.Name).IsSelectedStationInThePath = true;
-                        selectedPath.Add(connected);
-                    }
+                    tempCon = Stations.ToList().Find(s => s.Name.Trim() == tempCon.ConnectedStationO.NextStation.Trim());
+                    StationConnections.FirstOrDefault(s => s.NextStation.Trim() == tempCon.ConnectedStationO.NextStation.Trim()).IsSelectedConnection = true;
+                    tempCon.ConnectedStationO.IsSelectedConnection = true;
+                    tempCon.IsSelectedStationInThePath = true;
+                    selectedPath.Add(tempCon);
                 }
+
+                /*for (int index = 0; index < Stations.Count; index++)
+                {
+                    if ((StationPathFrom.CanvasLeft + StationPathFrom.CanvasBottom) > (StationPathTo.CanvasLeft + StationPathTo.CanvasBottom))
+                    { 
+                    StationViewModel connected = temp.Find(s => s.Name.Trim() == Stations[index].ConnectedStationO.NextStation.Trim());
+                        if (connected != null)
+                        {
+                            if (connected.Name == StationPathTo.Name)
+                            {
+                                selectedPath.Add(StationPathTo);
+                                foreach (StationViewModel sc in selectedPath)
+                                {
+                                    if (sc.Name != StationPathTo.Name)
+                                    {
+                                        if (sc.ConnectedStationO.NextStation != null)
+                                        {
+                                            var res = StationConnections.ToList().Find(s => s.NextStation.Trim() == sc.ConnectedStationO.NextStation.Trim());
+                                            res.IsSelectedConnection = true;
+                                        }
+                                    }
+                                }
+                                return;
+                            }
+                            Stations.FirstOrDefault(s => s.Name == connected.Name).IsSelectedStationInThePath = true;
+                            selectedPath.Add(connected);
+                        }
+                    }
+                    else
+                    {
+                        StationViewModel connected = temp.Find(s => s.Name.Trim() == Stations[index].ConnectedStationO.NextStation.Trim());
+                        if (connected != null)
+                        {
+                            if (connected.Name == StationPathTo.Name)
+                            {
+                                selectedPath.Add(StationPathTo);
+                                foreach (StationViewModel sc in selectedPath)
+                                {
+                                    if (sc.Name != StationPathTo.Name)
+                                    {
+                                        var res = StationConnections.ToList().Find(s => s.NextStation.Trim() == sc.ConnectedStationO.NextStation.Trim());
+                                        res.IsSelectedConnection = true;
+                                    }
+                                }
+                                return;
+                            }
+                            Stations.FirstOrDefault(s => s.Name == connected.Name).IsSelectedStationInThePath = true;
+                            selectedPath.Add(connected);
+                        }
+                    }
+                }*/
                 
             }
+        }
+
+        private void RemoveStationToSelection()
+        {
+            StationPathTo.IsSelected = false;
+            StationPathTo = null;
+        }
+
+        private void ResetSelectedStationsAndStationConnections()
+        {
+            Stations.Where(s => s.IsSelectedStationInThePath == false | true)
+                            .ToList().ForEach(s => { s.IsSelectedStationInThePath = null; });
+                        StationConnections.Where(sc => sc.IsSelectedConnection == false | true)
+                            .ToList().ForEach(sc => { sc.IsSelectedConnection = null; });
+        }
+
+        private void HideStationsAndConnectionsThatIsNotOnTheSelectedPath()
+        {
+            StationConnections.Where(sc => sc.IsSelectedConnection == null)
+                            .ToList().ForEach(sc => { sc.IsSelectedConnection = false; });
+            Stations.Where(s => s.IsSelectedStationInThePath == null)
+                        .ToList().ForEach(s => { s.IsSelectedStationInThePath = false; });
+        }
+
+        private void RemoveStationFromSelection()
+        {
+            StationPathFrom.IsSelected = false;
+            StationPathFrom = null;
         }
     }
 }

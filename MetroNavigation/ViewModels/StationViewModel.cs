@@ -10,11 +10,20 @@ namespace MetroNavigation.ViewModels
         private bool isSielected;
         private double opacity;
         private bool? isSelectedStationInThePath;
+        private StationConnectionViewModel connectedStation;
 
         public string Name { get; set; }
         public int Line { get; set; }
 
-        public StationConnectionViewModel ConnectedStationO { get; set; }
+        public StationConnectionViewModel ConnectedStationO
+        {
+            get { return connectedStation; }
+            set
+            {
+                connectedStation = value;
+                OnPropertyChanged("ConnectedStationO");
+            }
+        }
 
         public StationViewModel()
         {

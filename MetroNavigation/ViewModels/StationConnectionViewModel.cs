@@ -11,7 +11,7 @@ namespace MetroNavigation.ViewModels
         private double? canvasBottom;
         private double? canvasLeft;
         private int opacity;
-        private bool? isSelectedConnection { get; set; }
+        private bool? isSelectedConnection;
 
         public double X1 { get; set; }
         public double X2 { get; set; }
