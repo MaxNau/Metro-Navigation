@@ -13,7 +13,7 @@ namespace MetroNavigation.ViewModels
 
         public string Name { get; set; }
         public int Line { get; set; }
-        //public string ConnectedStation { get; set; }
+
         public StationConnectionViewModel ConnectedStationO { get; set; }
 
         public StationViewModel()

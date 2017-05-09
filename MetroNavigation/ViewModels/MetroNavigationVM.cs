@@ -33,6 +33,7 @@ namespace MetroNavigation.ViewModels
             Load();
         }
 
+        // this method will be reworked
         private void Load()
         {
             Stations = new ObservableCollection<StationViewModel>();
@@ -110,6 +111,8 @@ namespace MetroNavigation.ViewModels
             }
         }
 
+
+        // this method will be reworked
         private void SelectStation(object selectedStation)
         {
             if (StationPathFrom == null)
@@ -178,7 +181,7 @@ namespace MetroNavigation.ViewModels
 
                 List<StationViewModel> selectedPath = new List<StationViewModel>();
                 selectedPath.Add(StationPathFrom);
-                //int index = temp.FindIndex(s => s.Name.Trim() == StationPathFrom.Name.Trim());
+
                 for (int index = 0; index < Stations.Count; index++)
                 {
                     StationViewModel connected = temp.Find(s => s.Name.Trim() == Stations[index].ConnectedStationO.NextStation.Trim());
@@ -198,11 +201,9 @@ namespace MetroNavigation.ViewModels
                             return;
                         }
                         Stations.FirstOrDefault(s => s.Name == connected.Name).IsSelectedStationInThePath = true;
-                       // connected.IsSelectedStationInThePath = true;
                         selectedPath.Add(connected);
                     }
                 }
-
                 
             }
         }
