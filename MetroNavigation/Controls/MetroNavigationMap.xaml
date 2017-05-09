@@ -10,13 +10,16 @@
         <Style TargetType="local:StationControl">
             <Style.Triggers>
                 <DataTrigger Binding="{Binding Path=Line}" Value="1">
-                    <Setter Property="StationColor" Value="Red"></Setter>    
+                    <Setter Property="StationColor" Value="Red"></Setter>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding Path=Line}" Value="2">
                     <Setter Property="StationColor" Value="Green"></Setter>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding Path=Line}" Value="3">
-                    <Setter Property="StationColor" Value="Blue"></Setter>
+                    <Setter Property="StationColor" Value="Blue"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=IsSelectedStationInThePath}" Value="False">
+                    <Setter Property="Opacity" Value="0.25"/>
                 </DataTrigger>
             </Style.Triggers>
         </Style>
@@ -38,7 +41,8 @@
                 </DataTemplate>
                 <DataTemplate DataType="{x:Type vm:StationConnectionViewModel}">
                     <Line StrokeThickness="{Binding ConnectionHeight}" Stroke="{Binding LineColor}" X1="{Binding X1}"
-                          Y1="{Binding Y1}" X2="{Binding X2}" Y2="{Binding Y2}"></Line>
+                          Y1="{Binding Y1}" X2="{Binding X2}" Y2="{Binding Y2}">
+                    </Line>
                 </DataTemplate>
             </ItemsControl.Resources>
             <ItemsControl.ItemsSource>
@@ -57,7 +61,13 @@
                 <Style TargetType="ContentPresenter">
                     <Setter Property="Canvas.Left" Value="{Binding CanvasLeft}"/>
                     <Setter Property="Canvas.Bottom" Value="{Binding CanvasBottom}"/>
-                    <Setter Property="Canvas.ZIndex" Value="{Binding ZIndex}"></Setter>
+                    <Setter Property="Canvas.ZIndex" Value="{Binding ZIndex}"/>
+                    <Setter Property="Opacity" Value="{Binding Opacity}"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Path=IsSelectedConnection}" Value="False">
+                            <Setter Property="Opacity" Value="0.25"/>
+                        </DataTrigger>
+                    </Style.Triggers>
                 </Style>
             </ItemsControl.ItemContainerStyle>
         </ItemsControl>

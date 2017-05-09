@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System;
+using System.Data.Entity;
 
 namespace MetroNavigation.ViewModels
 {
@@ -25,6 +26,7 @@ namespace MetroNavigation.ViewModels
         public StationViewModel StationPathTo { get; set; }
 
         public ICommand SelectStationCommand { get; set; }
+        public bool FindPath { get; private set; }
 
         public MetroNavigationVM()
         {
@@ -43,16 +45,17 @@ namespace MetroNavigation.ViewModels
             double canvasBottom;
             StationControl sc = new StationControl();
 
-            using (var context = new StationEntity())
+            using (var context = new MetroNavigationContext())
             {
-                stationsData = context.Stations.ToList();
+                stationsData = context.Stations.
+                    Include(s => s.StationConnection).ToList();
             }
 
             MinX = stationsData.Min(s => s.OsX);
             MaxX = stationsData.Max(s => s.OsX);
             MinY = stationsData.Min(s => s.OsY);
             MaxY = stationsData.Max(s => s.OsY);
-
+            List<double> l = new List<double>();
             foreach (var station in stationsData)
             {
                 canvasLeft = (SystemParameters.WorkArea.Width * 0.9) *
@@ -69,14 +72,20 @@ namespace MetroNavigation.ViewModels
                                           ? canvasBottom 
                                           : canvasBottom;
 
-                Stations.Add(new StationViewModel() { CanvasLeft = canvasLeft, CanvasBottom = canvasBottom, Name = station.Name, Line = station.Line, ConnectedStation = station.ConnectedStation });
+                Stations.Add(new StationViewModel() { CanvasLeft = canvasLeft, CanvasBottom = canvasBottom, Name = station.Name, Line = station.Line, ConnectedStationO = new StationConnectionViewModel() { NextStation = station.StationConnection.NextStation, PreviousStation = station.StationConnection.PreviousStation  } });
+                l.Add(canvasBottom + canvasLeft);
             }
 
             var temp = Stations.OrderBy(s => s.Line).ToList();
 
             foreach (StationViewModel station in temp)
             {
-                StationViewModel connected = temp.Find(s => s.Name.Trim() == station.ConnectedStation.Trim());
+                StationViewModel connected = null;
+                if (station.ConnectedStationO.NextStation != null)
+                {
+                    connected = temp.Find(s => s.Name.Trim() == station.ConnectedStationO.NextStation.Trim());
+                }
+
                 if (connected != null)
                 {
                     Brush lineColor = Brushes.Black;
@@ -94,9 +103,9 @@ namespace MetroNavigation.ViewModels
                     }
 
                     if (station.CanvasBottom > connected.CanvasBottom & station.CanvasLeft > connected.CanvasLeft | station.CanvasBottom > connected.CanvasBottom & station.CanvasLeft < connected.CanvasLeft)
-                        StationConnections.Add(new StationConnectionViewModel() { X1 = station.CanvasLeft + sc.MaxHeight / 2, X2 = connected.CanvasLeft + sc.MaxHeight / 2, Y1 = SystemParameters.WorkArea.Height - station.CanvasBottom , Y2 = SystemParameters.WorkArea.Height - connected.CanvasBottom , CanvasBottom = connected.CanvasBottom + (sc.MaxHeight / 2) - 2, LineColor = lineColor });
+                        StationConnections.Add(new StationConnectionViewModel() { X1 = station.CanvasLeft + sc.MaxHeight / 2, X2 = connected.CanvasLeft + sc.MaxHeight / 2, Y1 = SystemParameters.WorkArea.Height - station.CanvasBottom , Y2 = SystemParameters.WorkArea.Height - connected.CanvasBottom , CanvasBottom = connected.CanvasBottom + (sc.MaxHeight / 2) - 2, LineColor = lineColor, NextStation = connected.Name });
                     else if (station.CanvasBottom < connected.CanvasBottom & station.CanvasLeft < connected.CanvasLeft | station.CanvasBottom < connected.CanvasBottom & station.CanvasLeft > connected.CanvasLeft)
-                        StationConnections.Add(new StationConnectionViewModel() { X1 = station.CanvasLeft + sc.MaxHeight / 2, X2 = connected.CanvasLeft + sc.MaxHeight / 2, Y1 = SystemParameters.WorkArea.Height - connected.CanvasBottom  + (station.CanvasBottom - connected.CanvasBottom), Y2 = (SystemParameters.WorkArea.Height - connected.CanvasBottom ) + (station.CanvasBottom - connected.CanvasBottom)*2, CanvasBottom = station.CanvasBottom + (sc.MaxHeight / 2) - 2, LineColor = lineColor });
+                        StationConnections.Add(new StationConnectionViewModel() { X1 = station.CanvasLeft + sc.MaxHeight / 2, X2 = connected.CanvasLeft + sc.MaxHeight / 2, Y1 = SystemParameters.WorkArea.Height - connected.CanvasBottom  + (station.CanvasBottom - connected.CanvasBottom), Y2 = (SystemParameters.WorkArea.Height - connected.CanvasBottom ) + (station.CanvasBottom - connected.CanvasBottom)*2, CanvasBottom = station.CanvasBottom + (sc.MaxHeight / 2) - 2, LineColor = lineColor, NextStation = connected.Name });
                 }
             }
         }
@@ -114,6 +123,10 @@ namespace MetroNavigation.ViewModels
                 {
                     StationPathFrom.IsSelected = false;
                     StationPathFrom = null;
+                    Stations.Where(s => s.IsSelectedStationInThePath == false | true)
+                            .ToList().ForEach(s => { s.IsSelectedStationInThePath = null; });
+                    StationConnections.Where(sc => sc.IsSelectedConnection == false | true)
+                            .ToList().ForEach(sc => { sc.IsSelectedConnection = null; });
                     if (StationPathTo != null)
                     {
                         StationPathTo.IsSelected = false;
@@ -126,6 +139,10 @@ namespace MetroNavigation.ViewModels
                     {
                         StationPathTo.IsSelected = false;
                         StationPathTo = null;
+                        Stations.Where(s => s.IsSelectedStationInThePath == false | true)
+                            .ToList().ForEach(s => { s.IsSelectedStationInThePath = null; });
+                        StationConnections.Where(sc => sc.IsSelectedConnection == false | true)
+                            .ToList().ForEach(sc => { sc.IsSelectedConnection = null; });
                     }
                     else
                     {
@@ -143,6 +160,50 @@ namespace MetroNavigation.ViewModels
                         }
                     }
                 }
+            }
+            if (StationPathFrom != null & StationPathTo != null)
+                FindPath = true;
+            else
+                FindPath = false;
+            if (FindPath == true)
+            {
+                StationConnections.Where(sc => sc.IsSelectedConnection == null)
+                            .ToList().ForEach(sc => { sc.IsSelectedConnection = false; });
+                Stations.Where(s => s.IsSelectedStationInThePath == null)
+                            .ToList().ForEach(s => { s.IsSelectedStationInThePath = false; });
+
+                StationPathFrom.IsSelectedStationInThePath = true;
+                StationPathTo.IsSelectedStationInThePath = true;
+                var temp = Stations.OrderBy(s => s.Line).ToList();
+
+                List<StationViewModel> selectedPath = new List<StationViewModel>();
+                selectedPath.Add(StationPathFrom);
+                //int index = temp.FindIndex(s => s.Name.Trim() == StationPathFrom.Name.Trim());
+                for (int index = 0; index < Stations.Count; index++)
+                {
+                    StationViewModel connected = temp.Find(s => s.Name.Trim() == Stations[index].ConnectedStationO.NextStation.Trim());
+                    if (connected != null)
+                    {
+                        if (connected.Name == StationPathTo.Name)
+                        {
+                            selectedPath.Add(StationPathTo);
+                            foreach (StationViewModel sc in selectedPath)
+                            {
+                                if (sc.Name != StationPathTo.Name)
+                                {
+                                    var res = StationConnections.ToList().Find(s => s.NextStation.Trim() == sc.ConnectedStationO.NextStation.Trim());
+                                    res.IsSelectedConnection = true;
+                                }
+                            }
+                            return;
+                        }
+                        Stations.FirstOrDefault(s => s.Name == connected.Name).IsSelectedStationInThePath = true;
+                       // connected.IsSelectedStationInThePath = true;
+                        selectedPath.Add(connected);
+                    }
+                }
+
+                
             }
         }
     }

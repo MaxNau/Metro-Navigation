@@ -8,10 +8,38 @@ namespace MetroNavigation.ViewModels
         private double canvasLeft;
         private double canvasBottom;
         private bool isSielected;
+        private double opacity;
+        private bool? isSelectedStationInThePath;
 
         public string Name { get; set; }
         public int Line { get; set; }
-        public string ConnectedStation { get; set; }
+        //public string ConnectedStation { get; set; }
+        public StationConnectionViewModel ConnectedStationO { get; set; }
+
+        public StationViewModel()
+        {
+            Opacity = 1;
+        }
+
+        public bool? IsSelectedStationInThePath
+        {
+            get { return isSelectedStationInThePath; }
+            set
+            {
+                isSelectedStationInThePath = value;
+                OnPropertyChanged("IsSelectedStationInThePath");
+            }
+        }
+
+        public double Opacity
+        {
+            get { return opacity; }
+            set
+            {
+                opacity = value;
+                OnPropertyChanged("Opacity");
+            }
+        }
 
         public double CanvasLeft
         {
