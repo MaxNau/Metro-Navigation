@@ -12,6 +12,9 @@ namespace MetroNavigation.ViewModels
         private bool? isSelectedStationInThePath;
         private StationConnectionViewModel connectedStation;
 
+        public int TransitToLine { get; set; }
+        public string TransitToStation { get; set; }
+
         public string Name { get; set; }
         public int Line { get; set; }
 

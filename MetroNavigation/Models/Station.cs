@@ -25,6 +25,12 @@ namespace MetroNavigation.Models
         [StringLength(50)]
         public string ConnectedStation { get; set; }
 
+        [Required]
+        [StringLength(50)]
+        public string TransitToStation { get; set; }
+
+        public int TransitToLine { get; set; }
+
         public virtual StationConnection StationConnection { get; set; }
     }
 }

@@ -73,8 +73,7 @@ namespace MetroNavigation.ViewModels
                                           ? canvasBottom 
                                           : canvasBottom;
 
-                Stations.Add(new StationViewModel() { CanvasLeft = canvasLeft, CanvasBottom = canvasBottom, Name = station.Name, Line = station.Line, ConnectedStationO = new StationConnectionViewModel() { NextStation = station.StationConnection.NextStation, PreviousStation = station.StationConnection.PreviousStation  } });
-                l.Add(canvasBottom + canvasLeft);
+                Stations.Add(new StationViewModel() { CanvasLeft = canvasLeft, CanvasBottom = canvasBottom, Name = station.Name, Line = station.Line, ConnectedStationO = new StationConnectionViewModel() { NextStation = station.StationConnection.NextStation, PreviousStation = station.StationConnection.PreviousStation }, TransitToLine = station.TransitToLine, TransitToStation = station.TransitToStation });    
             }
 
             var temp = Stations.OrderBy(s => s.Line).ToList();
@@ -162,112 +161,107 @@ namespace MetroNavigation.ViewModels
                 FindPath = false;
             if (FindPath == true)
             {
-                HideStationsAndConnectionsThatIsNotOnTheSelectedPath();
-                StationPathFrom.IsSelectedStationInThePath = true;
-                StationPathTo.IsSelectedStationInThePath = true;
-                var temp = Stations.ToList();
+                FindPathZ(StationPathFrom, StationPathTo);
+            }
+        }
 
-                List<StationViewModel> selectedPath = new List<StationViewModel>();
-                //selectedPath.Add(StationPathFrom);
-                //selectedPath.Add(StationPathTo);
+        public void FindPathZ(StationViewModel startStation, StationViewModel endStation)
+        {
+            HideStationsAndConnectionsThatIsNotOnTheSelectedPath();
+            StationPathFrom.IsSelectedStationInThePath = true;
+            StationPathTo.IsSelectedStationInThePath = true;
 
-                var tempCon = StationPathFrom;
-                // bool found = false;
-
-                try
+            if (startStation.ConnectedStationO.PreviousStation == null & startStation.Line == StationPathTo.Line)
+            {
+                MoveToNext(startStation, endStation);
+            }
+            else if (startStation.ConnectedStationO.NextStation == null & startStation.Line == StationPathTo.Line)
+            {
+                MoveToPrevious(startStation, endStation);
+            }
+            else if (startStation.Line == StationPathTo.Line && check(startStation, endStation))
+            {
+                MoveToNext(startStation, endStation);
+            }
+            else if (startStation.Line == StationPathTo.Line && !check(startStation, endStation))
+            {
+                MoveToPrevious(startStation, endStation);
+            }
+            else
+            {
+                var transit = Stations.FirstOrDefault(s => s.TransitToLine == StationPathTo.Line & StationPathFrom.Line == s.Line);
+                if(check(startStation, transit))
                 {
-                    while (tempCon.ConnectedStationO.NextStation != StationPathTo.Name)
-                    {
-                        tempCon = Stations.ToList().Find(s => s.Name.Trim() == tempCon.ConnectedStationO.NextStation.Trim());
-                        StationConnections.SingleOrDefault(s =>
-                        {
-                            if (s.NextStation != null & s.NextStation.Trim() == tempCon.ConnectedStationO.NextStation.Trim())
-                            {
-                                s.IsSelectedConnection = true;
-                                return true;
-                            }
-                            return false;
-                        });
-                        //tempCon.ConnectedStationO.IsSelectedConnection = true;
-                        tempCon.IsSelectedStationInThePath = true;
-                       // selectedPath.Add(tempCon);
-                    }
-                }
-                catch (NullReferenceException ex)
-                {
-                    ResetSelectedStationsAndStationConnections();
-                    HideStationsAndConnectionsThatIsNotOnTheSelectedPath();
-                    tempCon = StationPathFrom;
-                    while (tempCon.ConnectedStationO.PreviousStation != StationPathTo.Name)
-                    {
-                        tempCon = Stations.ToList().Find(s => s.Name.Trim() == tempCon.ConnectedStationO.PreviousStation.Trim());
-                        StationConnections.SingleOrDefault(s =>
-                        {
-                            if (s.NextStation != null & s.NextStation.Trim() == tempCon.ConnectedStationO.NextStation.Trim())
-                            {
-                                s.IsSelectedConnection = true;
-                                return true;
-                            }
-                            return false;
-                        });
-                        //tempCon.ConnectedStationO.IsSelectedConnection = true;
-                        tempCon.IsSelectedStationInThePath = true;
-                        //selectedPath.Add(tempCon);
-                    }
-                }
-                
-
-                /*for (int index = 0; index < Stations.Count; index++)
-                {
-                    if ((StationPathFrom.CanvasLeft + StationPathFrom.CanvasBottom) > (StationPathTo.CanvasLeft + StationPathTo.CanvasBottom))
-                    { 
-                    StationViewModel connected = temp.Find(s => s.Name.Trim() == Stations[index].ConnectedStationO.NextStation.Trim());
-                        if (connected != null)
-                        {
-                            if (connected.Name == StationPathTo.Name)
-                            {
-                                selectedPath.Add(StationPathTo);
-                                foreach (StationViewModel sc in selectedPath)
-                                {
-                                    if (sc.Name != StationPathTo.Name)
-                                    {
-                                        if (sc.ConnectedStationO.NextStation != null)
-                                        {
-                                            var res = StationConnections.ToList().Find(s => s.NextStation.Trim() == sc.ConnectedStationO.NextStation.Trim());
-                                            res.IsSelectedConnection = true;
-                                        }
-                                    }
-                                }
-                                return;
-                            }
-                            Stations.FirstOrDefault(s => s.Name == connected.Name).IsSelectedStationInThePath = true;
-                            selectedPath.Add(connected);
-                        }
-                    }
+                    MoveToNext(startStation, transit);
+                    startStation = Stations.ToList().Find(s => s.Name.Trim() == transit.TransitToStation.Trim());
+                    if (check(startStation, endStation))
+                        MoveToNext(startStation, endStation);
                     else
+                        MoveToPrevious(startStation, endStation);
+                }
+                else
+                {
+                    MoveToPrevious(startStation, transit);
+                    startStation = Stations.ToList().Find(s => s.Name.Trim() == transit.TransitToStation.Trim());
+                    if (!check(startStation, endStation))
+                        MoveToPrevious(startStation, endStation);
+                    else
+                        MoveToNext(startStation, endStation);
+                }
+            }
+
+        }
+
+        public void MoveToNext(StationViewModel startStation, StationViewModel endStation)
+        {
+            while (startStation.ConnectedStationO.NextStation != endStation.Name)
+            {
+                startStation = Stations.ToList().Find(s => s.Name.Trim() == startStation.ConnectedStationO.NextStation.Trim());
+                StationConnections.SingleOrDefault(s =>
+                {
+                    if (s.NextStation != null & s.NextStation.Trim() == startStation.ConnectedStationO.NextStation.Trim())
                     {
-                        StationViewModel connected = temp.Find(s => s.Name.Trim() == Stations[index].ConnectedStationO.NextStation.Trim());
-                        if (connected != null)
-                        {
-                            if (connected.Name == StationPathTo.Name)
-                            {
-                                selectedPath.Add(StationPathTo);
-                                foreach (StationViewModel sc in selectedPath)
-                                {
-                                    if (sc.Name != StationPathTo.Name)
-                                    {
-                                        var res = StationConnections.ToList().Find(s => s.NextStation.Trim() == sc.ConnectedStationO.NextStation.Trim());
-                                        res.IsSelectedConnection = true;
-                                    }
-                                }
-                                return;
-                            }
-                            Stations.FirstOrDefault(s => s.Name == connected.Name).IsSelectedStationInThePath = true;
-                            selectedPath.Add(connected);
-                        }
+                        s.IsSelectedConnection = true;
+                        return true;
                     }
-                }*/
-                
+                    return false;
+                });
+                startStation.IsSelectedStationInThePath = true;
+            }
+        }
+
+        public bool check(StationViewModel station, StationViewModel endStation)
+        {
+            if (station.ConnectedStationO.NextStation != null && station.ConnectedStationO.NextStation != endStation.Name)
+            {
+                return check(Stations.ToList().Find(s => s.Name.Trim() == station.ConnectedStationO.NextStation.Trim()), endStation);
+            }
+            else if (station.ConnectedStationO.NextStation == endStation.Name)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+                    
+        }
+
+        public void MoveToPrevious(StationViewModel startStation, StationViewModel endStation)
+        {
+            while (startStation.ConnectedStationO.PreviousStation != endStation.Name)
+            {
+                startStation = Stations.ToList().Find(s => s.Name.Trim() == startStation.ConnectedStationO.PreviousStation.Trim());
+                StationConnections.SingleOrDefault(s =>
+                {
+                    if (s.NextStation != null & s.NextStation.Trim() == startStation.ConnectedStationO.NextStation.Trim())
+                    {
+                        s.IsSelectedConnection = true;
+                        return true;
+                    }
+                    return false;
+                });
+                startStation.IsSelectedStationInThePath = true;
             }
         }
 

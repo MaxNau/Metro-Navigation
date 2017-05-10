@@ -18,14 +18,6 @@ namespace MetroNavigation.Models
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Station>()
-                .Property(e => e.Name)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<Station>()
-                .Property(e => e.ConnectedStation)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<Station>()
                 .HasOptional(e => e.StationConnection)
                 .WithRequired(e => e.Station);
         }
